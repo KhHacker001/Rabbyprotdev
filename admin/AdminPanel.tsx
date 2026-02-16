@@ -112,7 +112,7 @@ const AdminPanel: React.FC = () => {
             {[
               { label: 'Total Traffic', val: stats.totalVisits, sub: 'Global Pings', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
               { label: 'Inbound Leads', val: stats.totalInquiries, sub: 'Handshakes', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
-              { label: 'Cloud Status', val: '99.9%', sub: 'Healthy', icon: 'M5 13l4 4L19 7' },
+              { label: 'Hire Intent', val: stats.hireRequests, sub: 'Active Deals', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
               { label: 'Top Geozone', val: stats.topCountries[0]?.[0] || 'Local', sub: 'Regional Data', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' }
             ].map((s) => (
               <div key={s.label} className="p-8 rounded-[2.5rem] bg-[#121212] border border-white/5 hover:border-[#D4FF00]/30 transition-all group">
@@ -160,15 +160,19 @@ const AdminPanel: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {logs.map(log => (
-                      <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-10 py-6 text-[11px] font-bold text-gray-600 whitespace-nowrap">{formatTimestamp(log.timestamp)}</td>
-                        <td className="px-10 py-6 font-mono text-[11px] text-[#D4FF00] font-bold">{log.ip}</td>
-                        <td className="px-10 py-6 text-sm font-black text-white">{log.country}</td>
-                        <td className="px-10 py-6 text-[10px] text-gray-600 font-bold uppercase tracking-tight">{log.browser} / {log.device}</td>
-                        <td className="px-10 py-6"><span className="px-3 py-1 rounded bg-[#D4FF00]/5 text-[#D4FF00] text-[9px] font-black uppercase border border-[#D4FF00]/10">{log.path}</span></td>
-                      </tr>
-                    ))}
+                    {logs.length === 0 ? (
+                      <tr><td colSpan={5} className="px-10 py-32 text-center text-gray-600 font-bold uppercase tracking-[0.3em]">No active pings recorded</td></tr>
+                    ) : (
+                      logs.map(log => (
+                        <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-10 py-6 text-[11px] font-bold text-gray-600 whitespace-nowrap">{formatTimestamp(log.timestamp)}</td>
+                          <td className="px-10 py-6 font-mono text-[11px] text-[#D4FF00] font-bold">{log.ip}</td>
+                          <td className="px-10 py-6 text-sm font-black text-white">{log.country}</td>
+                          <td className="px-10 py-6 text-[10px] text-gray-600 font-bold uppercase tracking-tight">{log.browser} / {log.device}</td>
+                          <td className="px-10 py-6"><span className="px-3 py-1 rounded bg-[#D4FF00]/5 text-[#D4FF00] text-[9px] font-black uppercase border border-[#D4FF00]/10">{log.path}</span></td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </motion.div>
@@ -177,22 +181,26 @@ const AdminPanel: React.FC = () => {
             {/* Inquiries Tab */}
             {activeTab === 'inquiries' && (
               <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-10 space-y-6">
-                {inquiries.map(inq => (
-                  <div key={inq.id} className="p-10 rounded-[2.5rem] bg-[#0A0A0A] border border-white/5 hover:border-[#D4FF00]/20 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h4 className="text-2xl font-black font-orbitron uppercase tracking-tighter text-white mb-1">{inq.name}</h4>
-                        <p className="text-[#D4FF00] font-bold font-mono text-xs">{inq.email}</p>
+                {inquiries.length === 0 ? (
+                  <div className="py-32 text-center text-gray-600 font-bold uppercase tracking-[0.3em]">The lead vault is empty</div>
+                ) : (
+                  inquiries.map(inq => (
+                    <div key={inq.id} className="p-10 rounded-[2.5rem] bg-[#0A0A0A] border border-white/5 hover:border-[#D4FF00]/20 transition-all group">
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <h4 className="text-2xl font-black font-orbitron uppercase tracking-tighter text-white mb-1">{inq.name}</h4>
+                          <p className="text-[#D4FF00] font-bold font-mono text-xs">{inq.email}</p>
+                        </div>
+                        <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${inq.type === 'Hire' ? 'bg-[#D4FF00] text-black' : 'bg-white/5 text-gray-500'}`}>{inq.type} Request</span>
                       </div>
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${inq.type === 'Hire' ? 'bg-[#D4FF00] text-black' : 'bg-white/5 text-gray-500'}`}>{inq.type} Request</span>
+                      <div className="p-8 rounded-[1.5rem] bg-[#121212] border border-white/5 text-gray-400 font-medium leading-relaxed italic">"{inq.message}"</div>
+                      <div className="mt-8 flex justify-between items-center">
+                         <span className="text-[9px] font-black text-gray-700 uppercase tracking-widest">{formatTimestamp(inq.timestamp)}</span>
+                         <button onClick={() => window.location.href=`mailto:${inq.email}`} className="px-6 py-2 bg-white text-black text-[9px] font-black uppercase rounded-lg hover:bg-[#D4FF00] transition-all">Send Response</button>
+                      </div>
                     </div>
-                    <div className="p-8 rounded-[1.5rem] bg-[#121212] border border-white/5 text-gray-400 font-medium leading-relaxed italic">"{inq.message}"</div>
-                    <div className="mt-8 flex justify-between items-center">
-                       <span className="text-[9px] font-black text-gray-700 uppercase tracking-widest">{formatTimestamp(inq.timestamp)}</span>
-                       <button onClick={() => window.location.href=`mailto:${inq.email}`} className="px-6 py-2 bg-white text-black text-[9px] font-black uppercase rounded-lg hover:bg-[#D4FF00] transition-all">Send Response</button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </motion.div>
             )}
 
@@ -202,7 +210,7 @@ const AdminPanel: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-10 space-y-6">
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'Admin' ? 'items-end' : 'items-start'}`}>
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 px-2">
                         <span className="text-[9px] font-black uppercase tracking-widest text-gray-600">{msg.sender}</span>
                         <span className="text-[8px] text-gray-800 font-bold">{new Date(msg.timestamp).toLocaleTimeString()}</span>
                       </div>
@@ -232,10 +240,10 @@ const AdminPanel: React.FC = () => {
 
       {/* Footer Branding */}
       <div className="max-w-7xl mx-auto px-12 py-12 flex flex-col md:flex-row justify-between items-center text-[9px] font-black text-gray-700 uppercase tracking-[0.5em] gap-8">
-         <p>Rabby Systems OS v2.0.4 - Local Storage Encryption Enabled</p>
+         <p>Rabby Systems OS v2.1.0 - Full Data Integrity Confirmed</p>
          <div className="flex gap-10">
-            <span className="text-[#D4FF00]">System Load: Minimal</span>
-            <span>Uptime: Persistent</span>
+            <span className="text-[#D4FF00]">System Load: Stable</span>
+            <span>Local Encryption: Active</span>
          </div>
       </div>
     </div>
