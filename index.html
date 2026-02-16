@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,29 +11,29 @@
     
     <style>
         :root { --accent: #D4FF00; --bg: #0A0A0A; }
-        body { background-color: var(--bg); color: white; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: white; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .loading-screen { display: flex; align-items: center; justify-content: center; height: 100vh; color: var(--accent); font-family: 'Orbitron'; letter-spacing: 0.5em; font-size: 12px; }
+        .loading-screen { display: flex; align-items: center; justify-content: center; height: 100vh; color: var(--accent); font-family: 'Orbitron'; letter-spacing: 0.5em; font-size: 12px; background: #0A0A0A; }
+        .mask-radial { mask-image: radial-gradient(circle at center, black, transparent 80%); }
     </style>
 
-    <!-- Unified React 18.2.0 Import Map -->
     <script type="importmap">
     {
       "imports": {
-        "react": "https://esm.sh/react@18.2.0",
-        "react-dom": "https://esm.sh/react-dom@18.2.0",
-        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
         "framer-motion": "https://esm.sh/framer-motion@11.11.11?external=react,react-dom",
-        "react/": "https://esm.sh/react@18.2.0/",
-        "react-dom/": "https://esm.sh/react-dom@18.2.0/"
+        "react/": "https://esm.sh/react@19.0.0/",
+        "react-dom/": "https://esm.sh/react-dom@19.0.0/"
       }
     }
     </script>
 </head>
 <body>
     <div id="root">
-        <div class="loading-screen">SYSTEM_BOOTING...</div>
+        <div class="loading-screen">SYSTEM_INITIALIZING...</div>
     </div>
     <script type="module" src="index.tsx"></script>
 </body>
