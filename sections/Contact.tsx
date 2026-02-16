@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Button from '../components/ui/Button';
-import { saveInquiry } from '../services/analyticsService';
+import Button from '../components/ui/Button.tsx';
+import { saveInquiry } from '../services/analyticsService.ts';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '', type: 'General' as 'General' | 'Hire' });

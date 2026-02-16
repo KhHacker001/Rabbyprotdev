@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SERVICES } from '../constants';
+import { SERVICES } from '../constants.tsx';
 
 const Services: React.FC = () => {
   return (

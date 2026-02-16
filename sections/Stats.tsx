@@ -1,7 +1,6 @@
-
 import React, { useEffect, useRef } from 'react';
 import { motion, useInView, useSpring, useTransform } from 'framer-motion';
-import { STATS } from '../constants';
+import { STATS } from '../constants.tsx';
 
 const CountUp: React.FC<{ value: number; suffix?: string }> = ({ value, suffix = '' }) => {
   const ref = useRef(null);

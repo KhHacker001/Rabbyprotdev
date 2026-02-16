@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Button from '../components/ui/Button';
+import Button from '../components/ui/Button.tsx';
 
 const Hero: React.FC = () => {
   const [role, setRole] = useState('');

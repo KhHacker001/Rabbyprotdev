@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PROJECTS } from '../constants';
-import Button from '../components/ui/Button';
+import { PROJECTS } from '../constants.tsx';
+import Button from '../components/ui/Button.tsx';
 
 const Projects: React.FC = () => {
   return (
