@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/shared/Navbar.tsx';
@@ -27,7 +26,7 @@ const BackToTop: React.FC = () => {
         <motion.button
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onClick={goToTop}
-          className="fixed bottom-10 right-10 z-[100] w-12 h-12 rounded-full bg-[#D4FF00] text-black flex items-center justify-center border-none shadow-xl"
+          className="fixed bottom-10 right-10 z-[100] w-12 h-12 rounded-full bg-[#D4FF00] text-black flex items-center justify-center border-none shadow-xl cursor-pointer"
         >
           ↑
         </motion.button>
@@ -42,17 +41,24 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentPath(window.location.hash);
-      trackVisit(window.location.hash || '/');
+      try {
+        trackVisit(window.location.hash || '/');
+      } catch (e) {
+        console.warn("Tracking failed but app continues.");
+      }
     };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  if (currentPath.startsWith('#/admin')) return <AdminPanel />;
+  // Simple Router
+  if (currentPath.startsWith('#/admin')) {
+    return <AdminPanel />;
+  }
 
   return (
-    <div className="bg-[#0A0A0A] text-white selection:bg-[#D4FF00] selection:text-black">
+    <div className="bg-[#0A0A0A] text-white selection:bg-[#D4FF00] selection:text-black min-h-screen">
       <Navbar />
       <main>
         <Hero />
@@ -65,8 +71,10 @@ const App: React.FC = () => {
         <Contact />
       </main>
       <BackToTop />
-      <footer className="py-20 border-t border-white/5 text-center text-[10px] text-gray-500 uppercase tracking-widest">
-        © {new Date().getFullYear()} KH Rabby Hossein. All Rights Reserved.
+      <footer className="py-20 border-t border-white/5 text-center">
+        <div className="text-[10px] text-gray-500 uppercase tracking-widest">
+          © {new Date().getFullYear()} KH Rabby Hossein. Engineered for Performance.
+        </div>
       </footer>
     </div>
   );
