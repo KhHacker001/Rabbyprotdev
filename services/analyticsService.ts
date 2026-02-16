@@ -1,22 +1,19 @@
 
-import { VisitorLog, Inquiry } from '../types';
+import { VisitorLog, Inquiry, ChatMessage } from '../types';
 import { getDeviceType, getBrowserName } from '../utils/helpers';
 
 const STORAGE_KEY = 'rabby_portfolio_analytics';
 const INQUIRY_KEY = 'rabby_portfolio_inquiries';
+const CHAT_KEY = 'rabby_portfolio_chat';
 
 export const trackVisit = async (path: string) => {
   let geoData = {
-    ip: 'Local/Protected',
-    country_name: 'Unknown'
+    ip: '127.0.0.1 (Local)',
+    country_name: 'Bangladesh'
   };
 
   try {
-    const response = await fetch('https://ipapi.co/json/', { 
-      mode: 'cors',
-      credentials: 'omit' 
-    });
-    
+    const response = await fetch('https://ipapi.co/json/');
     if (response.ok) {
       const data = await response.json();
       geoData.ip = data.ip || geoData.ip;
@@ -24,55 +21,74 @@ export const trackVisit = async (path: string) => {
     }
   } catch (error) {}
 
-  try {
-    const log: VisitorLog = {
-      id: Math.random().toString(36).substr(2, 9),
-      ip: geoData.ip,
-      country: geoData.country_name,
-      device: getDeviceType(),
-      browser: getBrowserName(),
-      timestamp: new Date().toISOString(),
-      path: path || '/'
-    };
+  const log: VisitorLog = {
+    id: Math.random().toString(36).substr(2, 9),
+    ip: geoData.ip,
+    country: geoData.country_name,
+    device: getDeviceType(),
+    browser: getBrowserName(),
+    timestamp: new Date().toISOString(),
+    path: path || '/'
+  };
 
-    const existingLogs = getLogs();
-    const updatedLogs = [log, ...existingLogs].slice(0, 100);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLogs));
-  } catch (error) {
-    console.error('Persistent analytics storage failed:', error);
-  }
+  const existingLogs = getLogs();
+  const updatedLogs = [log, ...existingLogs].slice(0, 500);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLogs));
 };
 
 export const saveInquiry = (inquiryData: Omit<Inquiry, 'id' | 'timestamp'>) => {
-  try {
-    const inquiry: Inquiry = {
-      ...inquiryData,
-      id: Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString()
-    };
-    const existing = getInquiries();
-    localStorage.setItem(INQUIRY_KEY, JSON.stringify([inquiry, ...existing]));
-  } catch (error) {
-    console.error('Failed to save inquiry:', error);
-  }
+  const inquiry: Inquiry = {
+    ...inquiryData,
+    id: Math.random().toString(36).substr(2, 9),
+    timestamp: new Date().toISOString()
+  };
+  const existing = getInquiries();
+  localStorage.setItem(INQUIRY_KEY, JSON.stringify([inquiry, ...existing]));
+  
+  // Also push to chat history as a system notification
+  saveChatMessage({
+    id: inquiry.id,
+    sender: 'System',
+    text: `New lead from ${inquiry.name}: ${inquiry.message.substring(0, 30)}...`,
+    timestamp: inquiry.timestamp
+  });
 };
 
 export const getInquiries = (): Inquiry[] => {
-  try {
-    const data = localStorage.getItem(INQUIRY_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
+  const data = localStorage.getItem(INQUIRY_KEY);
+  return data ? JSON.parse(data) : [];
 };
 
 export const getLogs = (): VisitorLog[] => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const saveChatMessage = (msg: ChatMessage) => {
+  const existing = getChatMessages();
+  localStorage.setItem(CHAT_KEY, JSON.stringify([...existing, msg]));
+};
+
+export const getChatMessages = (): ChatMessage[] => {
+  const data = localStorage.getItem(CHAT_KEY);
+  return data ? JSON.parse(data) : [
+    { id: '1', sender: 'System', text: 'Kernel ready. Dashboard initialized.', timestamp: new Date().toISOString() }
+  ];
+};
+
+export const exportAllData = () => {
+  const data = {
+    logs: getLogs(),
+    inquiries: getInquiries(),
+    chat: getChatMessages(),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rabby_systems_dump_${new Date().getTime()}.json`;
+  a.click();
 };
 
 export const getStatsSummary = () => {

@@ -41,6 +41,13 @@ export interface Inquiry {
   timestamp: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  sender: 'Admin' | 'System' | string;
+  text: string;
+  timestamp: string;
+}
+
 export interface Stat {
   label: string;
   value: number;
