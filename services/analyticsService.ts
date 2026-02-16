@@ -7,33 +7,37 @@ const INQUIRY_KEY = 'rabby_portfolio_inquiries';
 const CHAT_KEY = 'rabby_portfolio_chat';
 
 export const trackVisit = async (path: string) => {
-  let geoData = {
-    ip: '127.0.0.1 (Local)',
-    country_name: 'Bangladesh'
-  };
-
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    if (response.ok) {
-      const data = await response.json();
-      geoData.ip = data.ip || geoData.ip;
-      geoData.country_name = data.country_name || geoData.country_name;
-    }
-  } catch (error) {}
-
+  // Define default data immediately
   const log: VisitorLog = {
     id: Math.random().toString(36).substr(2, 9),
-    ip: geoData.ip,
-    country: geoData.country_name,
+    ip: 'Scanning...',
+    country: 'Detecting...',
     device: getDeviceType(),
     browser: getBrowserName(),
     timestamp: new Date().toISOString(),
     path: path || '/'
   };
 
-  const existingLogs = getLogs();
-  const updatedLogs = [log, ...existingLogs].slice(0, 500);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLogs));
+  // Run geo-tracking in the background without awaiting for the UI to move on
+  const runTracking = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      if (response.ok) {
+        const data = await response.json();
+        log.ip = data.ip || '127.0.0.1';
+        log.country = data.country_name || 'Bangladesh';
+      }
+    } catch (error) {
+      log.ip = '127.0.0.1';
+      log.country = 'Local';
+    } finally {
+      const existingLogs = getLogs();
+      const updatedLogs = [log, ...existingLogs].slice(0, 500);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLogs));
+    }
+  };
+
+  runTracking();
 };
 
 export const saveInquiry = (inquiryData: Omit<Inquiry, 'id' | 'timestamp'>) => {
@@ -55,13 +59,17 @@ export const saveInquiry = (inquiryData: Omit<Inquiry, 'id' | 'timestamp'>) => {
 };
 
 export const getInquiries = (): Inquiry[] => {
-  const data = localStorage.getItem(INQUIRY_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(INQUIRY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch { return []; }
 };
 
 export const getLogs = (): VisitorLog[] => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch { return []; }
 };
 
 export const saveChatMessage = (msg: ChatMessage) => {
@@ -70,10 +78,12 @@ export const saveChatMessage = (msg: ChatMessage) => {
 };
 
 export const getChatMessages = (): ChatMessage[] => {
-  const data = localStorage.getItem(CHAT_KEY);
-  return data ? JSON.parse(data) : [
-    { id: '1', sender: 'System', text: 'Kernel ready. Dashboard initialized.', timestamp: new Date().toISOString() }
-  ];
+  try {
+    const data = localStorage.getItem(CHAT_KEY);
+    return data ? JSON.parse(data) : [
+      { id: '1', sender: 'System', text: 'Kernel ready. Dashboard initialized.', timestamp: new Date().toISOString() }
+    ];
+  } catch { return []; }
 };
 
 export const exportAllData = () => {
